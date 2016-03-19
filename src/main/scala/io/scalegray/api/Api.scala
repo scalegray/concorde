@@ -30,14 +30,12 @@ object SystemCheck {
 
 object Main extends TwitterServer {
 
-
-
 //To check whether the system is up and doing just fine.
    val systemUp: Endpoint[String] = get("ping") {
      Ok(SystemCheck.ping())
    }
 
-//1 save node endpoint - this saves the node details that comes from the UI
+//1 Save node endpoint - this saves the node details that comes from the UI into the nodes bucket with validation = false
 
 
 //2. bootstrap - this endpoint is called by the sg agent from the node. this will contain all the data of the node table
@@ -49,7 +47,7 @@ val patchedNode: Endpoint[Node] = body.as[Node]
           println("000000000000000000000000000")
            println(id.getOrElse(""))
            //id match {
-          //  
+          //
           //
          // }
          }
