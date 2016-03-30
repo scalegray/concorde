@@ -16,7 +16,7 @@ Resolver.bintrayRepo("scalaz", "releases")
 
 
 libraryDependencies ++= {
-  val akkaV = "2.4.0"
+  val akkaV = "2.4.1"
   val akkaStreamVersion = "2.0-M1"
   val sprayV = "1.3.3"
   val scalazVersion = "7.2.0"
@@ -33,7 +33,12 @@ libraryDependencies ++= {
     "io.circe" %% "circe-generic" % circeVersion,
     "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
     "org.scalaz" % "scalaz-core_2.11" % "7.2.0",
-    "io.jvm.uuid" %% "scala-uuid" % "0.2.1"
+    "io.jvm.uuid" %% "scala-uuid" % "0.2.1",
+    "org.scalatest" % "scalatest_2.11" % "2.2.6" % "test",
+    "com.typesafe.akka" %% "akka-actor" % akkaV,
+    "com.typesafe.akka" %% "akka-cluster" % akkaV
+
+
   //  "org.scalaz" %% "scalaz-core" % scalazVersion
     //"org.scalaz" %% "scalaz-iteratee_2.11" % scalazVersion,
     //"org.scalaz" %% "scalaz-effect_2.11" % scalazVersion,

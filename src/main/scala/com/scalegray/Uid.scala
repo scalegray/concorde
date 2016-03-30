@@ -1,4 +1,4 @@
-package io.scalegray
+package com.scalegray
 
 import io.jvm.uuid._
 import scalaz._
