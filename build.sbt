@@ -16,7 +16,7 @@ Resolver.bintrayRepo("scalaz", "releases")
 
 
 libraryDependencies ++= {
-  val akkaV = "2.4.1"
+  val akkaV = "2.4.3"
   val akkaStreamVersion = "2.0-M1"
   val sprayV = "1.3.3"
   val scalazVersion = "7.2.0"
@@ -36,7 +36,12 @@ libraryDependencies ++= {
     "io.jvm.uuid" %% "scala-uuid" % "0.2.1",
     "org.scalatest" % "scalatest_2.11" % "2.2.6" % "test",
     "com.typesafe.akka" %% "akka-actor" % akkaV,
-    "com.typesafe.akka" %% "akka-cluster" % akkaV
+    "com.typesafe.akka" %% "akka-cluster" % akkaV,
+    "com.typesafe.akka" %% "akka-stream" % akkaV,
+    "com.typesafe.akka" %% "akka-http-experimental" % akkaV,
+    "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaV
+
+
 
 
   //  "org.scalaz" %% "scalaz-core" % scalazVersion

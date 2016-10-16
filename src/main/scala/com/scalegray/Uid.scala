@@ -9,7 +9,7 @@ import scalaz.Validation.FlatMap._
 /*
  * A seperate UID class just to extend the UID later to integrate twitter snowflake for other usecases.
  */
-class UID {
+object UID {
 
 
   def getUID: ValidationNel[Throwable, Long] = {

@@ -12,14 +12,14 @@ object ConcordeEngine {
 
  def start(aSystem: Boolean => ActorSystem) { //Bool will be replaced with Config class(ConfigFactory)
 
-   val system = aSystem(true)
-   val supervisor = system.actorOf(Props(classOf[SupervisorActor]), "supervisor-actor")
+   implicit val system = aSystem(true)
+   implicit val supervisor = system.actorOf(Props(classOf[SupervisorActor]), "supervisor-actor")
+   new ApiServer().startApiServer()
+ }
 
-   new Api(system, supervisor).startApiServer() //API server is started
-  }
   def newActorSystem(name: String)(config: Boolean): ActorSystem = {
       ActorSystem(name)
   }
-    start(newActorSystem("concorde")(_)) //currying
-   }
+  start(newActorSystem("concorde")(_)) //currying
+ }
 }
