@@ -25,7 +25,6 @@ object SystemCheck {
     //needs to be a lot better than this
     return "I'm Up!"
   }
-
 }
 
 class Api(system: ActorSystem, supervisor: ActorRef) extends TwitterServer {
@@ -44,11 +43,19 @@ class Api(system: ActorSystem, supervisor: ActorRef) extends TwitterServer {
   val systemUp: Endpoint[String] = get("ping") {
     Ok(SystemCheck.ping())
   }
+  //1. users post
+//  val usersCreate: Endpoint[String] = post("users")
 
-  //1 Save node endpoint - this saves the node details that comes from the UI into the nodes bucket with validation = false
+   //2. users get /users/:email
+   //val usersGet: Endpoint[String] = get()
+
+   //3. users put /users/:email
+//   val usersPut: Endpoint[String] = put()
+
+  //4. Save node endpoint - this saves the node details that comes from the UI into the nodes bucket with validation = false
   // UID is created here and returned back. a Map of host -> UID is retuned back to the UI
 
-  //2. bootstrap - this endpoint is called by the sg agent from the node. this will contain all the data of the node table
+  //5. bootstrap - this endpoint is called by the sg agent from the node. this will contain all the data of the node table
   //so no need to use the incomplete decoder.
   val patchedNode: Endpoint[Node] = body.as[Node]
   val bootstrapNode: Endpoint[Node] = post("bootstrap" :: patchedNode) { (t: Node) =>
@@ -58,19 +65,15 @@ class Api(system: ActorSystem, supervisor: ActorRef) extends TwitterServer {
       id <- Node.checkId(t.uid) leftMap { err: NonEmptyList[Throwable] => err } //check if id exists, the return id else throw exception
       //  v <- Node.validateId(id) //send an option and see if its there or nots
       y <- subscribeQsystem(83437873847387434L) //call the supervisor aka Qsystem actor
-    } yield {    
+    } yield {
       id
-
     }
-
     //     println(t)
     val r = new Node(83437873847387434L)
     Ok(r)
-  } handle {
-    case e: Exception => BadRequest(e)
+     } handle {
+     case e: Exception => BadRequest(e)
   }
-
-  //3.
 
   val api: Service[Request, Response] = (systemUp :+: bootstrapNode).toService
 
