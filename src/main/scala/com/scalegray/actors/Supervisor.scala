@@ -10,6 +10,6 @@ import akka.actor.Actor
 class SupervisorActor extends Actor {
 
   def receive() = {
-    case _ => println("BOOYAHGRANDMA")
+    case _ => println("test")
   }
 }

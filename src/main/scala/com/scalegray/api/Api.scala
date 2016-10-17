@@ -25,9 +25,10 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-import spray.json.DefaultJsonProtocol._
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import spray.json.DefaultJsonProtocol
 import scala.concurrent.Future
+
 
 
 
@@ -39,11 +40,10 @@ object SystemCheck {
   }
 }
 
-class ApiServer(implicit system: ActorSystem, supervisor: ActorRef) {
+class ApiServer(implicit system: ActorSystem, supervisor: ActorRef) extends DefaultJsonProtocol with SprayJsonSupport {
 
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
-
 
    private def subscribeQsystem(id: Long): ValidationNel[Throwable, Long] = {
 
@@ -54,34 +54,71 @@ class ApiServer(implicit system: ActorSystem, supervisor: ActorRef) {
     return Validation.success[Throwable, Long](12312335343434L).toValidationNel
   }
 
-  val routes: Route =
-       get {
-         pathPrefix("nodes") {
-           // there might be no item for a given id
-          // val maybeItem: Future[Option[Item]] = fetchItem(id)
-          println("booyah")
-          val item = "boo"
-          complete(item)
-           /*onSuccess(maybeItem) {
-             case Some(item) => complete(item)
-             case None       => complete(StatusCodes.NotFound)
-           } */
-         }
-       }
-         post {
-           path("nodes") {
-             entity(as[Node]) { node =>  //http://doc.akka.io/docs/akka/2.4/scala/http/routing-dsl/directives/marshalling-directives/entity.html
-               val saved: Future[String] = node.saveToDB()
-               onComplete(saved) { s =>
-                 println(s)
-                 complete("Node created")
-               }
-             }
-           }
-         }
+  val myRoutes = {nodeRoutes ~ userRoutes ~ bootstrap}
 
   def startApiServer() {
-      Http().bindAndHandle(routes, "localhost", 8090)
+      Http().bindAndHandle(myRoutes, "localhost", 8090)
  }
 
+  def nodeRoutes: Route = pathPrefix("nodes") {
+    implicit val nodeJson = jsonFormat4(Node.apply)
+
+      get {
+          complete("getting node")
+        } ~
+        post {   //TODO: authentication mechanisms and akka-http
+            entity(as[Node]) { node =>      //try using akkahttp-circe for better performance
+              val saved: Future[String] = node.saveToDB()
+              onComplete(saved) { saved =>
+                println(saved)
+                complete("Node created")
+              }
+            }
+        }
+    }
+
+    def bootstrap: Route =  pathPrefix("bootstrap" / LongNumber) { uid =>
+        //implicit val bootstrapJson = jsonFormat1(Bootstrap.apply)
+        put {
+             println(uid)
+             for {
+               node <- Node.checkId(uid)
+
+             }
+             complete("Bootstrapped")
+//validate UID - check if UID exists in the system
+//change UID validated = true
+//notify the QSystem Actor
+//bootstrap complete
+
+        }
+    }
+
+  def userRoutes: Route = pathPrefix("users") {
+    implicit val nodeJson = jsonFormat4(User.apply)
+
+      get {
+         complete("getting users")
+      } ~
+      post {
+          entity(as[User]) { user =>  //http://doc.akka.io/docs/akka/2.4/scala/http/routing-dsl/directives/marshalling-directives/entity.html
+            val saved: Future[String] = user.saveToDB()
+            onComplete(saved) { saved =>
+              println(saved)
+              complete("Node created")
+          }
+        }
+     }
+  }
+
 }
+
+//Akka design:
+// When the /bootstrap is called -
+//1. pull the relevant node with UID
+//2. Notify Qsystem actor about 'bootstrap' authentication
+//3. Qsystem will spin off an subQ actor which subscribe to the queue. [QSystem will supervise subQ actors]
+
+//Bounded context - model bootstrap and node with differnet contexts under same roof.
+//http://doc.akka.io/docs/akka/2.4/scala/http/routing-dsl/directives/path-directives/index.html#pathdirectives
+//unmarshallers - http://malaw.ski/2016/04/10/hakk-the-planet-implementing-akka-http-marshallers/
